@@ -1,19 +1,20 @@
 ---
 import Base from '../layouts/Base.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-// Edita los bolos aquí
-const bolos = [
-  { fecha: '14 DIC', ciudad: 'Badajoz', sala: 'Sala por confirmar', url: '#' },
-  { fecha: '11 ENE', ciudad: 'Cáceres', sala: 'Sala por confirmar', url: '#' },
-  { fecha: '01 FEB', ciudad: 'Mérida', sala: 'Sala por confirmar', url: '#' },
+
+// tipo: 'Concierto' | 'Evento'. Si no hay enlace, deja url: '' y no sale el botón.
+// Para no mostrar ninguno: const eventos = [];
+const eventos = [
+  { fecha: '14 DIC', lugar: 'Badajoz', sala: 'Sala por confirmar', tipo: 'Concierto', url: '' },
+  { fecha: '11 ENE', lugar: 'Cáceres', sala: 'Sala por confirmar', tipo: 'Concierto', url: '' },
+  { fecha: '01 FEB', lugar: 'Mérida', sala: 'Sala por confirmar', tipo: 'Evento', url: '' },
 ];
 const frase = 'Ley Cero ✦ Pop-rock desde Extremadura ✦ Escucha ya nuestro último single ✦ ';
 ---
 <Base title="Ley Cero">
   <section class="hero">
     <div class="slash" aria-hidden="true"></div>
-    <h1 class="rough">Ley<span class="l2">Cero</span></h1>
-    <p>EL NUEVO POP-ROCK EXTREMEÑO.</p>
+    <h1 class="rough" style="padding-bottom: 3rem">Ley<span class="l2">Cero</span></h1>
     <div class="cta">
       <a class="btn" href={`${base}/musica`}>Escuchar</a>
       <a class="btn ghost" href={`${base}/contacto`}>Contratar</a>
@@ -25,22 +26,32 @@ const frase = 'Ley Cero ✦ Pop-rock desde Extremadura ✦ Escucha ya nuestro ú
 
   <section class="paper" style="margin-top:3rem">
     <div class="wrap">
-      <h2 class="rough">Próximos bolos</h2>
-      <ul class="rows">
-        {bolos.map((b) => (
-          <li>
-            <span class="date">{b.fecha}</span>
-            <span class="city">{b.ciudad}<small>{b.sala}</small></span>
-            <a class="btn" href={b.url}>Entradas</a>
-          </li>
-        ))}
-      </ul>
+      <h2 class="rough">Eventos y conciertos</h2>
+      {eventos.length > 0 ? (
+        <ul class="rows">
+          {eventos.map((e) => (
+            <li>
+              <span class="date">{e.fecha}</span>
+              <span class="city">{e.lugar}<small>{e.tipo} · {e.sala}</small></span>
+              {e.url ? <a class="btn" href={e.url} rel="noopener">Info</a> : <span></span>}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p style="margin-top:2rem">Pronto anunciaremos nuevas fechas. Síguenos en <a href="https://instagram.com/leycer0" rel="noopener">Instagram</a> para no perdértelas.</p>
+      )}
     </div>
   </section>
 
   <section class="section wrap">
+    <h2 class="rough">Conoce a la banda</h2>
+    <p style="max-width:46ch;margin-block:1.5rem">Quiénes somos y qué hace cada uno.</p>
+    <a class="btn" href={`${base}/labanda`}>La banda</a>
+  </section>
+
+  <section class="section wrap">
     <h2 class="rough">Dale al play</h2>
-    <p style="max-width:46ch;margin-block:1.5rem">Todo nuestro ruido está en Spotify y YouTube. Ponlo alto.</p>
+    <p style="max-width:46ch;margin-block:1.5rem">Toda nuestra música está en Spotify y YouTube. Ponla a todo volumen.</p>
     <a class="btn" href={`${base}/musica`}>Ver música</a>
   </section>
 </Base>

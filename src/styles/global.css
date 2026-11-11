@@ -115,3 +115,8 @@ footer .social { display: flex; justify-content: center; gap: 1.5rem; flex-wrap:
 .justified .card { margin: 0; min-width: 0; flex: var(--r) 1 calc(var(--r) * var(--h) + 2rem + 6px); }
 .justified::after { content: ''; flex-grow: 1000000; }
 @media (max-width: 560px) { .justified .card { flex-basis: 100%; } }
+
+.members { display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.member img { width: 100%; height: auto; aspect-ratio: 4/5; object-fit: cover; object-position: center 20%; filter: grayscale(1) contrast(1.2); }
+.member .role { font-family: var(--display); text-transform: uppercase; color: var(--red); font-size: 1.3rem; margin: .3rem 0 .8rem; }
+.member p:last-child { margin: 0; }

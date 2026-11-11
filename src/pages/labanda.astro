@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Una entrada por integrante. 'foto' es el archivo dentro de public/img/
+const integrantes = [
+  { nombre: 'Adrián', rol: 'Guitarra', foto: '/img/adrian.webp', desc: 'Descripción de Adrián en una o dos frases.' },
+  { nombre: 'Alberto', rol: 'Batería', foto: '/img/alberto.webp', desc: 'Descripción de Alberto en una o dos frases.' },
+  { nombre: 'Gonzalo', rol: 'Voz i Guitarra', foto: '/img/gonzalo.webp', desc: 'Descripción de Gonzalo en una o dos frases.' },
+  { nombre: 'Jorge', rol: 'Guitarra', foto: '/img/jorge.jpeg', desc: 'Descripción de Jorge en una o dos frases.' },
+];
+---
+<Base title="La banda" description="Quieres conocernos un poco mejor? Somos Ley Cero!">
+  <section class="section wrap">
+    <h2 class="rough">La banda</h2>
+    <p style="max-width:46ch;margin-top:1.5rem">Somos una banda pop-rock extremeña con muchas ganas de reventar el escenario.</p>
+  </section>
+
+  <section class="paper">
+    <div class="wrap">
+      <div class="members">
+        {integrantes.map((m) => (
+          <article class="card member">
+            <img src={`${base}${m.foto}`} alt={`${m.nombre}, ${m.rol}`} loading="lazy" width="600" height="750" />
+            <h3>{m.nombre}</h3>
+            <p class="role">{m.rol}</p>
+            <p>{m.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
