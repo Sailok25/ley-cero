@@ -1,0 +1,20 @@
+---
+const path = Astro.url.pathname.replace(/\/$/, '');
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const links = [
+  { href: '/musica', label: 'Música' },
+  { href: '/tienda', label: 'Tienda' },
+  { href: '/galeria', label: 'Galería' },
+  { href: '/contacto', label: 'Contacto' },
+];
+---
+<header class="top">
+  <a class="logo" href={`${base}/`}>Ley <b>Cero</b></a>
+  <nav aria-label="Principal">
+    <ul>
+      {links.map((l) => (
+        <li><a href={`${base}${l.href}`} aria-current={path === `${base}${l.href}` ? 'page' : undefined}>{l.label}</a></li>
+      ))}
+    </ul>
+  </nav>
+</header>

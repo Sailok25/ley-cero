@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+// Edita los bolos aquí
+const bolos = [
+  { fecha: '14 DIC', ciudad: 'Badajoz', sala: 'Sala por confirmar', url: '#' },
+  { fecha: '11 ENE', ciudad: 'Cáceres', sala: 'Sala por confirmar', url: '#' },
+  { fecha: '01 FEB', ciudad: 'Mérida', sala: 'Sala por confirmar', url: '#' },
+];
+const frase = 'Ley Cero ✦ Pop-rock desde Extremadura ✦ Escucha ya nuestro último single ✦ ';
+---
+<Base title="Ley Cero">
+  <section class="hero">
+    <div class="slash" aria-hidden="true"></div>
+    <h1 class="rough">Ley<span class="l2">Cero</span></h1>
+    <p>EL NUEVO POP-ROCK EXTREMEÑO.</p>
+    <div class="cta">
+      <a class="btn" href={`${base}/musica`}>Escuchar</a>
+      <a class="btn ghost" href={`${base}/contacto`}>Contratar</a>
+    </div>
+    <span class="tape" aria-hidden="true">Nuevo single pronto</span>
+  </section>
+
+  <div class="marquee" aria-hidden="true"><span>{frase.repeat(8)}</span></div>
+
+  <section class="paper" style="margin-top:3rem">
+    <div class="wrap">
+      <h2 class="rough">Próximos bolos</h2>
+      <ul class="rows">
+        {bolos.map((b) => (
+          <li>
+            <span class="date">{b.fecha}</span>
+            <span class="city">{b.ciudad}<small>{b.sala}</small></span>
+            <a class="btn" href={b.url}>Entradas</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="rough">Dale al play</h2>
+    <p style="max-width:46ch;margin-block:1.5rem">Todo nuestro ruido está en Spotify y YouTube. Ponlo alto.</p>
+    <a class="btn" href={`${base}/musica`}>Ver música</a>
+  </section>
+</Base>

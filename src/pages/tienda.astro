@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+const productos = [
+  { nombre: 'Camiseta Ley Cero', precio: '18 €', nota: 'Negra, logo rojo. S a XXL' },
+  { nombre: 'Chapas (pack 3)', precio: '5 €', nota: 'Para la mochila o la chaqueta' },
+  { nombre: 'Pegatinas', precio: '3 €', nota: 'Para llevar a Ley Cero contigo' },
+];
+---
+<Base title="Tienda" description="Merch oficial de Ley Cero.">
+  <section class="section wrap">
+    <h2 class="rough">Tienda</h2>
+    <p style="max-width:46ch;margin-top:1.5rem">Merch hecho por nosotros. Para pedir, escríbenos por Instagram y lo preparamos.</p>
+    <div class="grid">
+      {productos.map((p) => (
+        <article class="card">
+          <div class="ph" role="img" aria-label={p.nombre}>{p.nombre}</div>
+          <h3>{p.nombre}</h3>
+          <p style="margin:.4rem 0">{p.nota}</p>
+          <span class="price">{p.precio}</span>
+          <p style="margin-top:1rem"><a class="btn" href="https://www.instagram.com/leycer0/" rel="noopener">Pedir</a></p>
+        </article>
+      ))}
+    </div>
+  </section>
+</Base>
