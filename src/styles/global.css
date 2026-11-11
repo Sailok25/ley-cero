@@ -36,7 +36,7 @@ h3 { font-size: clamp(1.5rem, 3vw, 2.2rem); }
 .paper { background: var(--white); color: var(--black); position: relative;
   clip-path: polygon(0 2%, 6% 0, 14% 2.5%, 23% .5%, 34% 2%, 46% 0, 57% 2.5%, 68% .5%, 79% 2%, 90% 0, 100% 2%, 100% 98%, 93% 100%, 82% 97.5%, 70% 100%, 58% 98%, 46% 100%, 33% 97.5%, 21% 100%, 9% 98%, 0 100%);
   padding-block: clamp(4rem, 9vw, 7rem); }
-.paper a:hover { color: var(--red); }
+
 
 .tape { display: inline-block; background: var(--red); color: var(--white); font-family: var(--display); text-transform: uppercase;
   padding: .25em .8em; transform: rotate(-2deg); letter-spacing: .04em; }
@@ -44,7 +44,7 @@ h3 { font-size: clamp(1.5rem, 3vw, 2.2rem); }
 .btn { display: inline-block; font-family: var(--display); text-transform: uppercase; font-size: 1.3rem; letter-spacing: .05em;
   background: var(--red); color: var(--white); padding: .7em 1.4em; text-decoration: none; border: 3px solid var(--red);
   box-shadow: 6px 6px 0 var(--white); transition: transform .12s, box-shadow .12s; cursor: pointer; }
-.btn:hover { color: var(--white); transform: translate(3px, 3px); box-shadow: 3px 3px 0 var(--white); }
+a.btn:hover, .btn:hover { color: var(--white); transform: translate(3px, 3px); box-shadow: 3px 3px 0 var(--white); }
 .btn.ghost { background: transparent; border-color: var(--white); box-shadow: 6px 6px 0 var(--red); }
 .paper .btn { box-shadow: 6px 6px 0 var(--black); }
 .paper .btn:hover { box-shadow: 3px 3px 0 var(--black); }
@@ -101,3 +101,9 @@ footer .social { display: flex; justify-content: center; gap: 1.5rem; flex-wrap:
   html { scroll-behavior: auto; }
   .btn { transition: none; }
 }
+
+.rows .tracks { grid-column: 1 / -1; }
+.tracks summary { cursor: pointer; font-family: var(--display); text-transform: uppercase; font-size: 1.1rem; letter-spacing: .04em; }
+.tracks summary:hover { color: var(--red); }
+.tracks ol { margin: .8rem 0 0; padding-left: 1.5rem; display: grid; gap: .3rem; }
+.tracks ol li { display: list-item; border: 0; padding: 0; }
