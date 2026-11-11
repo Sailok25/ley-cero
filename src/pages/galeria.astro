@@ -1,25 +1,52 @@
 ---
 import Base from '../layouts/Base.astro';
-// Pon tus fotos en /public/img y añade src: '/img/foto1.jpg'
-const fotos = [
-  { alt: 'Concierto en directo' },
-  { alt: 'Ensayo en el local' },
-  { alt: 'Sesión de fotos' },
-  { alt: 'Backstage' },
-  { alt: 'Público' },
-  { alt: 'Portada del single' },
-];
+import path from 'node:path';
+import { imageSizeFromFile } from 'image-size/fromFile';
+
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// tipo: 'foto' | 'video' (clip en el repo, necesita poster) | 'youtube' (necesita id)
+const raw = [
+  { tipo: 'foto', src: '/img/primer-concierto.webp', alt: 'Primer concierto de Ley Cero' },
+  { tipo: 'foto', src: '/img/concierto-1.jpeg', alt: 'Ley Cero en directo' },
+  { tipo: 'foto', src: '/img/ley_cero.webp', alt: 'Ley Cero' },
+  { tipo: 'foto', src: '/img/aerea.webp', alt: 'Vista aérea' },
+  { tipo: 'foto', src: '/img/ley_cero_inicio.webp', alt: 'Ley Cero' }
+];
+
+// Lee la proporción (ancho/alto) de cada imagen en el build
+const ratio = async (src) => {
+  const { width, height } = await imageSizeFromFile(path.resolve('public', src.replace(/^\//, '')));
+  return width / height;
+};
+const items = await Promise.all(
+  raw.map(async (it) => ({
+    ...it,
+    r: it.tipo === 'youtube' ? 16 / 9 : await ratio(it.tipo === 'video' ? it.poster : it.src),
+  }))
+);
 ---
-<Base title="Galería" description="Fotos de Ley Cero en directo y en el local de ensayo.">
+<Base title="Galería" description="Fotos y vídeos de Ley Cero en directo y en el local de ensayo.">
   <section class="section wrap">
     <h2 class="rough">Galería</h2>
-    <div class="grid">
-      {fotos.map((f) => (
-        <figure class="card" style="margin:0">
-          {f.src
-            ? <img src={`${base}${f.src}`} alt={f.alt} loading="lazy" style="aspect-ratio:4/5;object-fit:cover;filter:grayscale(1) contrast(1.3)" />
-            : <div class="ph" role="img" aria-label={f.alt}>Foto<br />{f.alt}</div>}
+    <div class="justified">
+      {items.map((it) => (
+        <figure class="card" style={`--r:${it.r.toFixed(4)}`}>
+          {it.tipo === 'foto' && (
+            <img src={`${base}${it.src}`} alt={it.alt} loading="lazy"
+              style="width:100%;height:auto;display:block;filter:grayscale(1) contrast(1.3)" />
+          )}
+          {it.tipo === 'video' && (
+            <video controls preload="none" playsinline poster={`${base}${it.poster}`} aria-label={it.alt}
+              style="width:100%;height:auto;background:#000;display:block">
+              <source src={`${base}${it.src}`} type="video/mp4" />
+            </video>
+          )}
+          {it.tipo === 'youtube' && (
+            <iframe title={it.alt} src={`https://www.youtube-nocookie.com/embed/${it.id}`} loading="lazy"
+              allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen
+              style="width:100%;aspect-ratio:16/9;border:0;display:block"></iframe>
+          )}
         </figure>
       ))}
     </div>

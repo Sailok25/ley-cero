@@ -107,3 +107,11 @@ footer .social { display: flex; justify-content: center; gap: 1.5rem; flex-wrap:
 .tracks summary:hover { color: var(--red); }
 .tracks ol { margin: .8rem 0 0; padding-left: 1.5rem; display: grid; gap: .3rem; }
 .tracks ol li { display: list-item; border: 0; padding: 0; }
+
+.grid .wide { grid-column: span 2; }
+@media (max-width: 640px) { .grid .wide { grid-column: span 1; } }
+
+.justified { --h: 260px; display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 2.5rem; }
+.justified .card { margin: 0; min-width: 0; flex: var(--r) 1 calc(var(--r) * var(--h) + 2rem + 6px); }
+.justified::after { content: ''; flex-grow: 1000000; }
+@media (max-width: 560px) { .justified .card { flex-basis: 100%; } }
