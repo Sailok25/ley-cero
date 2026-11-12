@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="public/logo.png" alt="Ley Cero" width="120">
+
 # LEY CERO
 
 [![Instagram](https://img.shields.io/badge/Instagram-@leycer0-E10600?logo=instagram&logoColor=white)](https://www.instagram.com/leycer0/)
