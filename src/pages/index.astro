@@ -1,7 +1,6 @@
+
 ---
 import Base from '../layouts/Base.astro';
-import path from 'node:path';
-import { imageSizeFromFile } from 'image-size/fromFile';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -11,29 +10,49 @@ const ultimo = {
   embed: 'https://open.spotify.com/embed/album/2a3rXi1n5tQobDw6pSK3Ox',
 };
 
-// tipo: 'Concierto' | 'Evento'. Si no hay enlace, deja url: '' y no sale el botón.
-// Para no mostrar ninguno: const eventos = [];
 const eventos = [
   { fecha: '25 OCT', lugar: 'Olivenza', tipo: 'Evento', url: '' },
   { fecha: '7 NOV', lugar: 'Mérida', tipo: 'Evento', url: '' },
   { fecha: '14 NOV', lugar: 'Jerez de los Caballeros', tipo: 'Concurso', url: '' },
 ];
 
-const frase = 'Ley Cero ✦ Pop-rock desde Extremadura ✦ Escucha ya nuestro último single ✦ ';
+const frase = 'Escucha ya nuestro último single ✦ Escucha ya nuestro último single ✦ Escucha ya nuestro último single ✦';
 ---
+
 <Base title="Ley Cero">
-  <section class="hero">
-    <div class="slash" aria-hidden="true"></div>
-    <h1 class="rough" style="padding-bottom: 3rem">Ley<span class="l2">Cero</span></h1>
-    <div class="cta">
-      <a class="btn" href={`${base}/musica`}>Escuchar</a>
-      <a class="btn ghost" href={`${base}/contacto`}>Contratar</a>
+  <!-- HERO -->
+  <section class="hero hero-home">
+    <div class="hero-photo">
+      <img
+        src={`${base}/img/ley_cero.webp`}
+        alt="Ley Cero"
+        fetchpriority="high"
+      />
     </div>
-    <span class="tape" aria-hidden="true">Nuevo single pronto</span>
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <div class="hero-copy">
+        <h1 class="rough">
+          LEY
+          <span>CERO</span>
+        </h1>
+
+        <div class="cta">
+          <a class="btn" href={`${base}/musica`}>Escuchar música</a>
+          <a class="btn ghost" href={`${base}/contacto`}>Contratar</a>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <div class="marquee" aria-hidden="true"><span>{frase.repeat(8)}</span></div>
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <span>{frase.repeat(8)}</span>
+  </div>
 
+  <!-- ÚLTIMO SINGLE -->
   <section class="section wrap" style="margin-top:2rem">
     <div class="duo">
       <div>
@@ -43,39 +62,66 @@ const frase = 'Ley Cero ✦ Pop-rock desde Extremadura ✦ Escucha ya nuestro ú
         <a class="btn" href={ultimo.url} rel="noopener">Escuchar ahora</a>
       </div>
 
-      <iframe  title={`${ultimo.titulo} en Spotify`} src={ultimo.embed} width="100%" height="152" style={{ border: 0, borderRadius: '12px' }} loading="lazy" allow="encrypted-media" />
+      <iframe
+        title={`${ultimo.titulo} en Spotify`}
+        src={ultimo.embed}
+        width="100%"
+        height="152"
+        style={{ border: 0, borderRadius: '12px' }}
+        loading="lazy"
+        allow="encrypted-media"
+      />
     </div>
   </section>
 
+  <!-- EVENTOS -->
   <section class="paper">
     <div class="wrap">
       <h2 class="rough">Eventos y conciertos</h2>
+
       {eventos.length > 0 ? (
         <ul class="rows">
           {eventos.map((e) => (
             <li>
               <span class="date">{e.fecha}</span>
-              <span class="city">{e.lugar}<small>{e.tipo} · {e.sala}</small></span>
-              {e.url ? <a class="btn" href={e.url} rel="noopener">Info</a> : <span></span>}
+              <span class="city">
+                {e.lugar}
+                <small>{e.tipo}</small>
+              </span>
+              {e.url ? (
+                <a class="btn" href={e.url} rel="noopener">Info</a>
+              ) : (
+                <span></span>
+              )}
             </li>
           ))}
         </ul>
       ) : (
-        <p style="margin-top:2rem">Pronto anunciaremos nuevas fechas. Síguenos en <a href="https://instagram.com/leycer0" rel="noopener">Instagram</a> para no perdértelas.</p>
+        <p style="margin-top:2rem">
+          Pronto anunciaremos nuevas fechas. Síguenos en
+          <a href="https://instagram.com/leycer0" rel="noopener"> Instagram</a>
+          para no perdértelas.
+        </p>
       )}
     </div>
 
-    </br>    </br>    </br>
+    <div class="home-links-spacer"></div>
 
+    <!-- DESCUBRE LA BANDA -->
     <div class="wrap duo">
       <div>
         <h2 class="rough">La banda</h2>
-        <p style="margin-block:1.5rem">Quiénes somos, qué toca cada uno y de dónde venimos.</p>
+        <p style="margin-block:1.5rem">
+          Quiénes somos, qué toca cada uno y de dónde venimos.
+        </p>
         <a class="btn" href={`${base}/labanda`}>Conócenos</a>
       </div>
+
       <div>
         <h2 class="rough">Música</h2>
-        <p style="margin-block:1.5rem">Singles y EP en Spotify, y vídeos en nuestro canal de YouTube.</p>
+        <p style="margin-block:1.5rem">
+          Singles, EP y vídeos en nuestro canal de YouTube.
+        </p>
         <a class="btn" href={`${base}/musica`}>Ver música</a>
       </div>
     </div>

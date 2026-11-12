@@ -16,12 +16,16 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <meta name="theme-color" content="#000000" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+    <link rel="icon" href={`${base}/logo4.svg`} type="image/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Special+Elite&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <div id="intro-loader" aria-label="Ley Cero">
+      <img  src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/logo.png`}  alt="Ley Cero"/>
+    </div>
+
     <a class="skip" href="#main">Saltar al contenido</a>
     <svg width="0" height="0" aria-hidden="true" style="position:absolute">
       <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" result="n" />
@@ -46,6 +50,31 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           io.observe(el);
         });
       }
+    </script>
+
+    <script is:inline>
+      (() => {
+        const loader = document.getElementById('intro-loader');
+        if (!loader) return;
+
+        // Solo mostrar la intro una vez por sesión
+        if (sessionStorage.getItem('ley-cero-intro')) {
+          loader.remove();
+          return;
+        }
+
+        sessionStorage.setItem('ley-cero-intro', 'true');
+
+        window.addEventListener('load', () => {
+          setTimeout(() => {
+            loader.classList.add('hide');
+
+            setTimeout(() => {
+              loader.remove();
+            }, 750);
+          }, 1800);
+        });
+      })();
     </script>
   </body>
 </html>

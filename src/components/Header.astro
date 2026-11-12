@@ -10,7 +10,10 @@ const links = [
 ];
 ---
 <header class="top">
-  <a class="logo" href={`${base}/`}>Ley <b>Cero</b></a>
+  <a class="logo" href={`${base}/`} aria-label="Ley Cero - Inicio">
+  <img src={`${base}/logo.png`} alt="" />
+  <span>Ley <b>Cero</b></span>
+</a>
 
   <button class="burger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu">
     <span></span><span></span><span></span>
