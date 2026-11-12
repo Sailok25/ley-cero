@@ -11,11 +11,37 @@ const links = [
 ---
 <header class="top">
   <a class="logo" href={`${base}/`}>Ley <b>Cero</b></a>
-  <nav aria-label="Principal">
+
+  <button class="burger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav id="menu" aria-label="Principal">
     <ul>
-      {links.map((l) => (
-        <li><a href={`${base}${l.href}`} aria-current={path === `${base}${l.href}` ? 'page' : undefined}>{l.label}</a></li>
+      {links.map((l, i) => (
+        <li style={`--i:${i}`}>
+          <a href={`${base}${l.href}`} aria-current={path === `${base}${l.href}` ? 'page' : undefined}>{l.label}</a>
+        </li>
       ))}
     </ul>
   </nav>
 </header>
+
+<script>
+  const header = document.querySelector('header.top');
+  const btn = header?.querySelector('.burger');
+  const menu = document.getElementById('menu');
+
+  if (header && btn && menu) {
+    const set = (open) => {
+      header.toggleAttribute('data-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      btn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+      document.body.classList.toggle('menu-open', open);
+    };
+    btn.addEventListener('click', () => set(!header.hasAttribute('data-open')));
+    menu.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+    window.matchMedia('(min-width: 721px)').addEventListener('change', (e) => { if (e.matches) set(false); });
+  }
+</script>

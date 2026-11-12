@@ -30,5 +30,22 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <Header />
     <main id="main"><slot /></main>
     <Footer />
+
+    <script>
+      // Aparición al hacer scroll (si el usuario no pide menos movimiento)
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if ('IntersectionObserver' in window && !reduce) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((en) => {
+            if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+        document.querySelectorAll('.section h2, .section h3, .paper h2, .rows li, .card').forEach((el, i) => {
+          el.classList.add('reveal');
+          el.style.transitionDelay = `${(i % 4) * 70}ms`;
+          io.observe(el);
+        });
+      }
+    </script>
   </body>
 </html>
