@@ -1,102 +1,211 @@
 ---
+import { existsSync } from 'node:fs';
 import Base from '../layouts/Base.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// 'fotos' enlaza cada id de color con su foto (rutas dentro de public/).
-// Cuidado: GitHub Pages distingue mayúsculas, así que el nombre debe coincidir exactamente.
+// Colores disponibles. Los filtros de color se generan solos con los que uses en los productos.
+const COLORES = {
+  blanco: { nombre: 'Blanco', hex: '#ffffff' },
+  negro: { nombre: 'Negro', hex: '#000000' },
+  rojo: { nombre: 'Rojo', hex: '#E10600' },
+};
+
+// categoria: 'ropa' | 'tazas' | 'accesorios'. precio: número (en €).
+// colores: lista de ids de COLORES, o null si el producto no tiene colores.
+// fotos: una foto por color (con la clave del color) o { unico } si no tiene colores.
+// Los filtros de talla y color se generan solos con lo que pongas aquí.
 const productos = [
   {
-    id: 'taza', nombre: 'Taza Ley Cero', precio: '12 €',
-    desc: 'Cerámica con el interior en rojo.',
-    colores: [
-      { id: 'blanca', nombre: 'Blanca', hex: '#ffffff' },
-      { id: 'negra', nombre: 'Negra', hex: '#000000' },
-    ],
-    tallas: null,
-    fotos: {
-      blanca: '/img/tienda/tazas/taza_blanca_logo.png',
-      negra: '/img/tienda/tazas/taza_negra_logo.png',
-    },
-  },
-  {
-    id: 'sudadera', nombre: 'Sudadera Ley Cero', precio: '35 €',
-    desc: 'Con el logo de Ley Cero.',
-    colores: [
-      { id: 'blanca', nombre: 'Blanca', hex: '#ffffff' },
-      { id: 'negra', nombre: 'Negra', hex: '#000000' },
-    ],
+    id: 'sudadera-1', categoria: 'ropa', nombre: 'Sudadera Logo Frontal', precio: 30,
+    desc: 'Con el logo de Ley Cero en la parte delantera.',
+    colores: ['blanco', 'negro', 'rojo'],
     tallas: ['S', 'M', 'L', 'XL', 'XXL'],
     fotos: {
-      blanca: '/img/tienda/ropa/sudaderas/sudadera_blanca_logoFrontal.png',
-      negra: '/img/tienda/ropa/sudaderas/sudadera_negra_logoTrasero.png',
+      blanco: '/img/tienda/ropa/sudaderas/modelo1/sudadera_blanca_logoFrontal.png',
+      negro: '/img/tienda/ropa/sudaderas/modelo1/sudadera_negra_logoFrontal.png',
+      rojo: '/img/tienda/ropa/sudaderas/modelo1/sudadera_roja_logoFrontal.png',
     },
   },
   {
-    id: 'chapa', nombre: 'Chapa para tela', precio: '4 €',
-    desc: 'Para mochilas, chaquetas y todo lo que lleve tela.',
+    id: 'sudadera-2', categoria: 'ropa', nombre: 'Sudadera Logo Trasero', precio: 45,
+    desc: 'Con el logo de Ley Cero en la parte trasera.',
+    colores: ['blanco', 'negro'],
+    tallas: ['S', 'M', 'L', 'XL', 'XXL'],
+    fotos: {
+      blanco: '/img/tienda/ropa/sudaderas/modelo2/sudadera_blanca_logoTrasero.png',
+      negro: '/img/tienda/ropa/sudaderas/modelo2/sudadera_negra_logoTrasero.png',
+    },
+  },
+  {
+    // PRECIO Y TALLAS PROVISIONALES: ajústalos a los reales.
+    id: 'body', categoria: 'ropa', nombre: 'Body Logo Frontal', precio: 22,
+    desc: 'Con el logo de Ley Cero en la parte delantera.',
+    colores: ['blanco', 'negro'],
+    tallas: ['S', 'M', 'L', 'XL'],
+    fotos: {
+      blanco: '/img/tienda/ropa/body/body_blanco_logoFrontal.jpeg',
+      negro: '/img/tienda/ropa/body/body_negro_logoFrontal.png',
+    },
+  },
+  {
+    id: 'taza', categoria: 'tazas', nombre: 'Taza Ley Cero', precio: 12,
+    desc: 'Cerámica con el interior en rojo.',
+    colores: ['blanco', 'negro'],
+    tallas: null,
+    fotos: {
+      blanco: '/img/tienda/tazas/taza_blanca_logo.png',
+      negro: '/img/tienda/tazas/taza_negra_logo.png',
+    },
+  },
+  {
+    id: 'chapa', categoria: 'accesorios', nombre: 'Chapa para tela', precio: 2,
+    desc: 'Para mochilas, chaquetas y riñoneras.',
     colores: null,
     tallas: null,
     fotos: { unico: '/img/tienda/accesorios/chapa/chapa_negra_logo.png' },
   },
 ];
 
+// Comprobación al construir la web: si falta un color, una foto o el archivo de la foto,
+// el error dice exactamente cuál, en lugar de dejar una imagen rota en la tienda.
+for (const p of productos) {
+  for (const id of p.colores ?? ['unico']) {
+    if (p.colores && !COLORES[id]) throw new Error(`[tienda] "${p.nombre}": el color "${id}" no existe en COLORES.`);
+    const ruta = p.fotos[id];
+    if (!ruta) throw new Error(`[tienda] "${p.nombre}": falta la foto del color "${id}".`);
+    if (!existsSync(`public${ruta}`)) throw new Error(`[tienda] "${p.nombre}": no existe el archivo public${ruta}`);
+  }
+}
+
+// Orden y nombre de las secciones. Las vacías no se muestran.
+const categorias = [
+  { id: 'ropa', nombre: 'Ropa' },
+  { id: 'tazas', nombre: 'Tazas' },
+  { id: 'accesorios', nombre: 'Accesorios' },
+].filter((c) => productos.some((p) => p.categoria === c.id));
+
+// Opciones de los filtros, calculadas a partir de los productos
+const tallasTodas = [...new Set(productos.flatMap((p) => p.tallas ?? []))];
+const coloresTodos = [...new Set(productos.flatMap((p) => p.colores ?? []))].map((id) => COLORES[id]);
+const precios = productos.map((p) => p.precio);
+const pMin = Math.floor(Math.min(...precios));
+const pMax = Math.ceil(Math.max(...precios));
+
 const instagram = 'https://ig.me/m/leycer0';
 ---
-<Base title="Tienda" description="Merch oficial de Ley Cero: tazas, sudaderas y chapas.">
+<Base title="Tienda" description="Merch oficial de Ley Cero: ropa, tazas y accesorios.">
   <section class="section wrap">
     <h2 class="rough">Tienda</h2>
     <p style="max-width:50ch;margin-top:1.5rem">Elige color y talla y pulsa Pedir: copiamos tu pedido y te llevamos a nuestro Instagram para pegarlo en el chat.</p>
 
-    <div class="grid shop">
-      {productos.map((p) => {
-        const colores = p.colores ?? [{ id: 'unico', nombre: '' }];
-        return (
-          <article class="card product" data-nombre={p.nombre} data-precio={p.precio} data-talla-req={p.tallas ? '1' : ''}>
-            <div class="art">
-              {colores.map((c, i) => (
-                <div class="pv" data-color={c.nombre} hidden={i > 0}>
-                  <img src={`${base}${p.fotos[c.id]}`} alt={`${p.nombre} ${c.nombre}`.trim()} loading="lazy" />
-                </div>
+    <details class="filters" open>
+      <summary>Filtros <span class="count" data-count aria-live="polite"></span></summary>
+      <div class="filters-body">
+        <div class="fg">
+          <span class="fl" id="fl-tipo">Tipo</span>
+          <div class="chips" role="radiogroup" aria-labelledby="fl-tipo">
+            <button type="button" class="chip" role="radio" aria-checked="true" data-cat="todos">Todos</button>
+            {categorias.map((c) => (
+              <button type="button" class="chip" role="radio" aria-checked="false" data-cat={c.id}>{c.nombre}</button>
+            ))}
+          </div>
+        </div>
+
+        <div class="fg">
+          <label class="fl" for="f-precio">Precio hasta <output id="f-precio-out">{pMax} €</output></label>
+          <input id="f-precio" type="range" min={pMin} max={pMax} step="1" value={pMax} />
+        </div>
+
+        {tallasTodas.length > 0 && (
+          <div class="fg">
+            <span class="fl" id="fl-talla">Talla</span>
+            <div class="chips" role="group" aria-labelledby="fl-talla">
+              {tallasTodas.map((t) => (
+                <button type="button" class="chip" aria-pressed="false" data-talla={t}>{t}</button>
               ))}
             </div>
+          </div>
+        )}
 
-            <h3>{p.nombre}</h3>
-            <p style="margin:.4rem 0">{p.desc}</p>
-            <span class="price">{p.precio}</span>
+        {coloresTodos.length > 0 && (
+          <div class="fg">
+            <span class="fl" id="fl-color">Color</span>
+            <div class="chips" role="group" aria-labelledby="fl-color">
+              {coloresTodos.map((c) => (
+                <button type="button" class="swatch" aria-pressed="false" aria-label={c.nombre} title={c.nombre}
+                  data-color={c.nombre} style={`--c:${c.hex}`}></button>
+              ))}
+            </div>
+          </div>
+        )}
 
-            {p.colores && (
-              <fieldset class="opt">
-                <legend>Color: <b data-color-label>{p.colores[0].nombre}</b></legend>
-                <div class="swatches" role="radiogroup" aria-label={`Color de ${p.nombre}`}>
-                  {p.colores.map((c, i) => (
-                    <button type="button" class="swatch" role="radio" aria-checked={i === 0 ? 'true' : 'false'}
-                      aria-label={c.nombre} data-value={c.nombre} style={`--c:${c.hex}`}></button>
+        <button type="button" class="chip clear" data-clear hidden>Limpiar filtros</button>
+      </div>
+    </details>
+
+    <p class="empty" data-empty hidden>No hay productos con esos filtros. Prueba a quitar alguno.</p>
+
+    {categorias.map((cat) => (
+      <section class="cat-section" data-cat-section={cat.id}>
+        <h2 class="cat rough">{cat.nombre}</h2>
+        <div class="grid shop">
+          {productos.filter((p) => p.categoria === cat.id).map((p) => {
+            const colores = p.colores
+              ? p.colores.map((id) => ({ id, ...COLORES[id] }))
+              : [{ id: 'unico', nombre: '', hex: '' }];
+            return (
+              <article class="card product" data-cat={p.categoria} data-nombre={p.nombre}
+                data-precio={`${p.precio} €`} data-precio-num={p.precio}
+                data-tallas={(p.tallas ?? []).join('|')} data-colores={(p.colores ?? []).map((id) => COLORES[id].nombre).join('|')}
+                data-talla-req={p.tallas ? '1' : ''}>
+                <div class="art">
+                  {colores.map((c, i) => (
+                    <div class="pv" data-color={c.nombre} hidden={i > 0}>
+                      <img src={`${base}${p.fotos[c.id]}`} alt={`${p.nombre} ${c.nombre}`.trim()} loading="lazy" />
+                    </div>
                   ))}
                 </div>
-              </fieldset>
-            )}
 
-            {p.tallas && (
-              <fieldset class="opt">
-                <legend>Talla</legend>
-                <div class="sizes" role="radiogroup" aria-label={`Talla de ${p.nombre}`}>
-                  {p.tallas.map((t) => (
-                    <button type="button" class="size" role="radio" aria-checked="false" data-value={t}>{t}</button>
-                  ))}
-                </div>
-              </fieldset>
-            )}
+                <h3>{p.nombre}</h3>
+                <span class="price">{p.precio} €</span>
+                <p>{p.desc}</p>
 
-            <button type="button" class="btn order" data-ig={instagram}>Pedir</button>
-            <p class="hint" role="status" aria-live="polite"></p>
-          </article>
-        );
-      })}
-    </div>
+                {p.colores && (
+                  <fieldset class="opt">
+                    <legend>Color: <b data-color-label>{colores[0].nombre}</b></legend>
+                    <div class="swatches" role="radiogroup" aria-label={`Color de ${p.nombre}`}>
+                      {colores.map((c, i) => (
+                        <button type="button" class="swatch" role="radio" aria-checked={i === 0 ? 'true' : 'false'}
+                          aria-label={c.nombre} data-value={c.nombre} style={`--c:${c.hex}`}></button>
+                      ))}
+                    </div>
+                  </fieldset>
+                )}
+
+                {p.tallas && (
+                  <fieldset class="opt">
+                    <legend>Talla</legend>
+                    <div class="sizes" role="radiogroup" aria-label={`Talla de ${p.nombre}`}>
+                      {p.tallas.map((t) => (
+                        <button type="button" class="size" role="radio" aria-checked="false" data-value={t}>{t}</button>
+                      ))}
+                    </div>
+                  </fieldset>
+                )}
+
+                <button type="button" class="btn order" data-ig={instagram}>Pedir</button>
+                <p class="hint" role="status" aria-live="polite"></p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    ))}
   </section>
 </Base>
 
 <script>
+  /* ===== Selectores de cada tarjeta (color, talla, pedir) ===== */
   document.querySelectorAll('.product').forEach((card) => {
     const nombre = card.dataset.nombre;
     const precio = card.dataset.precio;
@@ -130,9 +239,88 @@ const instagram = 'https://ig.me/m/leycer0';
       if (needsSize && !talla) { hint.textContent = 'Elige una talla antes de pedir.'; return; }
       const partes = [nombre, color, talla && `talla ${talla}`].filter(Boolean).join(' · ');
       const msg = `Hola Ley Cero, quiero pedir: ${partes} (${precio})`;
-      navigator.clipboard?.writeText(msg).catch(() => {});
+      const copiado = navigator.clipboard?.writeText(msg).then(() => true, () => false);
       window.open(e.currentTarget.dataset.ig, '_blank', 'noopener');
-      hint.textContent = `Pedido copiado. Pégalo en el chat de Instagram: "${msg}"`;
+      Promise.resolve(copiado).then((ok) => {
+        hint.textContent = ok
+          ? 'Pedido copiado. Pégalo en el chat de Instagram.'
+          : `Copia este mensaje y pégalo en Instagram: "${msg}"`;
+      });
     });
   });
+
+  /* ===== Filtros ===== */
+  const bar = document.querySelector('.filters');
+  if (bar) {
+    const cards = [...document.querySelectorAll('.product')];
+    const sections = [...document.querySelectorAll('[data-cat-section]')];
+    const slider = bar.querySelector('#f-precio');
+    const out = bar.querySelector('#f-precio-out');
+    const count = bar.querySelector('[data-count]');
+    const clear = bar.querySelector('[data-clear]');
+    const empty = document.querySelector('[data-empty]');
+    const maxInicial = Number(slider.max);
+
+    const state = { cat: 'todos', max: maxInicial, tallas: new Set(), colores: new Set() };
+
+    // En móvil, el panel empieza plegado
+    bar.open = window.matchMedia('(min-width: 721px)').matches;
+
+    const apply = () => {
+      let visibles = 0;
+      cards.forEach((c) => {
+        const ts = c.dataset.tallas ? c.dataset.tallas.split('|') : [];
+        const cs = c.dataset.colores ? c.dataset.colores.split('|') : [];
+        const show =
+          (state.cat === 'todos' || c.dataset.cat === state.cat) &&
+          Number(c.dataset.precioNum) <= state.max &&
+          (!state.tallas.size || ts.some((t) => state.tallas.has(t))) &&
+          (!state.colores.size || cs.some((x) => state.colores.has(x)));
+        c.hidden = !show;
+        if (show) visibles++;
+      });
+      sections.forEach((s) => { s.hidden = !s.querySelector('.product:not([hidden])'); });
+      count.textContent = `· ${visibles} producto${visibles === 1 ? '' : 's'}`;
+      empty.hidden = visibles > 0;
+      clear.hidden = state.cat === 'todos' && state.max === maxInicial && !state.tallas.size && !state.colores.size;
+    };
+
+    bar.querySelectorAll('[data-cat]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.cat = btn.dataset.cat;
+        bar.querySelectorAll('[data-cat]').forEach((b) => b.setAttribute('aria-checked', String(b === btn)));
+        apply();
+      });
+    });
+
+    slider.addEventListener('input', () => {
+      state.max = Number(slider.value);
+      out.textContent = `${slider.value} €`;
+      apply();
+    });
+
+    const toggle = (selector, key, attr) => {
+      bar.querySelectorAll(selector).forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const v = btn.dataset[attr];
+          const on = !state[key].has(v);
+          on ? state[key].add(v) : state[key].delete(v);
+          btn.setAttribute('aria-pressed', String(on));
+          apply();
+        });
+      });
+    };
+    toggle('[data-talla]', 'tallas', 'talla');
+    toggle('[data-color]', 'colores', 'color');
+
+    clear.addEventListener('click', () => {
+      state.cat = 'todos'; state.max = maxInicial; state.tallas.clear(); state.colores.clear();
+      slider.value = String(maxInicial); out.textContent = `${maxInicial} €`;
+      bar.querySelectorAll('[data-cat]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.cat === 'todos')));
+      bar.querySelectorAll('[aria-pressed]').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+      apply();
+    });
+
+    apply();
+  }
 </script>
