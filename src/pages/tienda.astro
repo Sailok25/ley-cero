@@ -1,25 +1,138 @@
 ---
 import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// 'fotos' enlaza cada id de color con su foto (rutas dentro de public/).
+// Cuidado: GitHub Pages distingue mayúsculas, así que el nombre debe coincidir exactamente.
 const productos = [
-  { nombre: 'Camiseta Ley Cero', precio: '18 €', nota: 'Negra, logo rojo. S a XXL' },
-  { nombre: 'Chapas (pack 3)', precio: '5 €', nota: 'Para la mochila o la chaqueta' },
-  { nombre: 'Pegatinas', precio: '3 €', nota: 'Para llevar a Ley Cero contigo' },
+  {
+    id: 'taza', nombre: 'Taza Ley Cero', precio: '12 €',
+    desc: 'Cerámica con el interior en rojo.',
+    colores: [
+      { id: 'blanca', nombre: 'Blanca', hex: '#ffffff' },
+      { id: 'negra', nombre: 'Negra', hex: '#000000' },
+    ],
+    tallas: null,
+    fotos: {
+      blanca: '/img/tienda/tazas/taza_blanca_logo.png',
+      negra: '/img/tienda/tazas/taza_negra_logo.png',
+    },
+  },
+  {
+    id: 'sudadera', nombre: 'Sudadera Ley Cero', precio: '35 €',
+    desc: 'Con el logo de Ley Cero.',
+    colores: [
+      { id: 'blanca', nombre: 'Blanca', hex: '#ffffff' },
+      { id: 'negra', nombre: 'Negra', hex: '#000000' },
+    ],
+    tallas: ['S', 'M', 'L', 'XL', 'XXL'],
+    fotos: {
+      blanca: '/img/tienda/ropa/sudaderas/sudadera_blanca_logoFrontal.png',
+      negra: '/img/tienda/ropa/sudaderas/sudadera_negra_logoTrasero.png',
+    },
+  },
+  {
+    id: 'chapa', nombre: 'Chapa para tela', precio: '4 €',
+    desc: 'Para mochilas, chaquetas y todo lo que lleve tela.',
+    colores: null,
+    tallas: null,
+    fotos: { unico: '/img/tienda/accesorios/chapa/chapa_negra_logo.png' },
+  },
 ];
+
+const instagram = 'https://ig.me/m/leycer0';
 ---
-<Base title="Tienda" description="Merch oficial de Ley Cero.">
+<Base title="Tienda" description="Merch oficial de Ley Cero: tazas, sudaderas y chapas.">
   <section class="section wrap">
     <h2 class="rough">Tienda</h2>
-    <p style="max-width:46ch;margin-top:1.5rem">Merch hecho por nosotros. Para pedir, escríbenos por Instagram y lo preparamos.</p>
-    <div class="grid">
-      {productos.map((p) => (
-        <article class="card">
-          <div class="ph" role="img" aria-label={p.nombre}>{p.nombre}</div>
-          <h3>{p.nombre}</h3>
-          <p style="margin:.4rem 0">{p.nota}</p>
-          <span class="price">{p.precio}</span>
-          <p style="margin-top:1rem"><a class="btn" href="https://www.instagram.com/leycer0/" rel="noopener">Pedir</a></p>
-        </article>
-      ))}
+    <p style="max-width:50ch;margin-top:1.5rem">Elige color y talla y pulsa Pedir: copiamos tu pedido y te llevamos a nuestro Instagram para pegarlo en el chat.</p>
+
+    <div class="grid shop">
+      {productos.map((p) => {
+        const colores = p.colores ?? [{ id: 'unico', nombre: '' }];
+        return (
+          <article class="card product" data-nombre={p.nombre} data-precio={p.precio} data-talla-req={p.tallas ? '1' : ''}>
+            <div class="art">
+              {colores.map((c, i) => (
+                <div class="pv" data-color={c.nombre} hidden={i > 0}>
+                  <img src={`${base}${p.fotos[c.id]}`} alt={`${p.nombre} ${c.nombre}`.trim()} loading="lazy" />
+                </div>
+              ))}
+            </div>
+
+            <h3>{p.nombre}</h3>
+            <p style="margin:.4rem 0">{p.desc}</p>
+            <span class="price">{p.precio}</span>
+
+            {p.colores && (
+              <fieldset class="opt">
+                <legend>Color: <b data-color-label>{p.colores[0].nombre}</b></legend>
+                <div class="swatches" role="radiogroup" aria-label={`Color de ${p.nombre}`}>
+                  {p.colores.map((c, i) => (
+                    <button type="button" class="swatch" role="radio" aria-checked={i === 0 ? 'true' : 'false'}
+                      aria-label={c.nombre} data-value={c.nombre} style={`--c:${c.hex}`}></button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+
+            {p.tallas && (
+              <fieldset class="opt">
+                <legend>Talla</legend>
+                <div class="sizes" role="radiogroup" aria-label={`Talla de ${p.nombre}`}>
+                  {p.tallas.map((t) => (
+                    <button type="button" class="size" role="radio" aria-checked="false" data-value={t}>{t}</button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+
+            <button type="button" class="btn order" data-ig={instagram}>Pedir</button>
+            <p class="hint" role="status" aria-live="polite"></p>
+          </article>
+        );
+      })}
     </div>
   </section>
 </Base>
+
+<script>
+  document.querySelectorAll('.product').forEach((card) => {
+    const nombre = card.dataset.nombre;
+    const precio = card.dataset.precio;
+    const needsSize = card.dataset.tallaReq === '1';
+    const hint = card.querySelector('.hint');
+    let color = card.querySelector('.swatch[aria-checked="true"]')?.dataset.value || '';
+    let talla = '';
+
+    const select = (group, btn) => {
+      group.querySelectorAll('[role="radio"]').forEach((b) => b.setAttribute('aria-checked', String(b === btn)));
+    };
+
+    card.querySelectorAll('.swatch').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        color = btn.dataset.value;
+        select(btn.parentElement, btn);
+        card.querySelector('[data-color-label]').textContent = color;
+        card.querySelectorAll('.pv').forEach((pv) => { pv.hidden = pv.dataset.color !== color; });
+      });
+    });
+
+    card.querySelectorAll('.size').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        talla = btn.dataset.value;
+        select(btn.parentElement, btn);
+        hint.textContent = '';
+      });
+    });
+
+    card.querySelector('.order').addEventListener('click', (e) => {
+      if (needsSize && !talla) { hint.textContent = 'Elige una talla antes de pedir.'; return; }
+      const partes = [nombre, color, talla && `talla ${talla}`].filter(Boolean).join(' · ');
+      const msg = `Hola Ley Cero, quiero pedir: ${partes} (${precio})`;
+      navigator.clipboard?.writeText(msg).catch(() => {});
+      window.open(e.currentTarget.dataset.ig, '_blank', 'noopener');
+      hint.textContent = `Pedido copiado. Pégalo en el chat de Instagram: "${msg}"`;
+    });
+  });
+</script>
