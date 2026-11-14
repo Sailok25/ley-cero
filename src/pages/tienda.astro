@@ -16,7 +16,7 @@ const COLORES = {
 // Los filtros de talla y color se generan solos con lo que pongas aquí.
 const productos = [
   {
-    id: 'sudadera-1', categoria: 'ropa', nombre: 'Sudadera Logo Frontal', precio: 30,
+    id: 'sudadera-1', categoria: 'ropa', nombre: 'Sudadera con logo frontal', precio: 30,
     desc: 'Con el logo de Ley Cero en la parte delantera.',
     colores: ['blanco', 'negro', 'rojo'],
     tallas: ['S', 'M', 'L', 'XL', 'XXL'],
@@ -27,7 +27,7 @@ const productos = [
     },
   },
   {
-    id: 'sudadera-2', categoria: 'ropa', nombre: 'Sudadera Logo Trasero', precio: 45,
+    id: 'sudadera-2', categoria: 'ropa', nombre: 'Sudadera con bordes rojos', precio: 45,
     desc: 'Con el logo de Ley Cero en la parte trasera.',
     colores: ['blanco', 'negro'],
     tallas: ['S', 'M', 'L', 'XL', 'XXL'],
@@ -38,17 +38,17 @@ const productos = [
   },
   {
     // PRECIO Y TALLAS PROVISIONALES: ajústalos a los reales.
-    id: 'body', categoria: 'ropa', nombre: 'Body Logo Frontal', precio: 22,
+    id: 'body', categoria: 'ropa', nombre: 'Body con logo frontal', precio: 22,
     desc: 'Con el logo de Ley Cero en la parte delantera.',
     colores: ['blanco', 'negro'],
-    tallas: ['S', 'M', 'L', 'XL'],
+    tallas: ['S', 'M', 'L'],
     fotos: {
-      blanco: '/img/tienda/ropa/body/body_blanco_logoFrontal.jpeg',
+      blanco: '/img/tienda/ropa/body/body_blanco_logoFrontal.png',
       negro: '/img/tienda/ropa/body/body_negro_logoFrontal.png',
     },
   },
   {
-    id: 'taza', categoria: 'tazas', nombre: 'Taza Ley Cero', precio: 12,
+    id: 'taza', categoria: 'tazas', nombre: 'Taza mate con logo', precio: 12,
     desc: 'Cerámica con el interior en rojo.',
     colores: ['blanco', 'negro'],
     tallas: null,
@@ -59,10 +59,17 @@ const productos = [
   },
   {
     id: 'chapa', categoria: 'accesorios', nombre: 'Chapa para tela', precio: 2,
-    desc: 'Para mochilas, chaquetas y riñoneras.',
+    desc: 'Para tus accesorios de tela.',
     colores: null,
     tallas: null,
     fotos: { unico: '/img/tienda/accesorios/chapa/chapa_negra_logo.png' },
+  },
+    {
+    id: 'pua', categoria: 'accesorios', nombre: 'Pua para guitarra', precio: 3.5,
+    desc: 'Para guitarras y bajos.',
+    colores: null,
+    tallas: null,
+    fotos: { unico: '/img/tienda/accesorios/pua/pua_negra_logo.png' },
   },
 ];
 
@@ -91,12 +98,12 @@ const precios = productos.map((p) => p.precio);
 const pMin = Math.floor(Math.min(...precios));
 const pMax = Math.ceil(Math.max(...precios));
 
-const instagram = 'https://ig.me/m/leycer0';
+const instagram = 'https://www.instagram.com/direct/t/17844490587325005/';
 ---
 <Base title="Tienda" description="Merch oficial de Ley Cero: ropa, tazas y accesorios.">
   <section class="section wrap">
     <h2 class="rough">Tienda</h2>
-    <p style="max-width:50ch;margin-top:1.5rem">Elige color y talla y pulsa Pedir: copiamos tu pedido y te llevamos a nuestro Instagram para pegarlo en el chat.</p>
+    <p style="margin-top:1.5rem">Personaliza tu pedido con color y talla. Te enviaremos tu pedido con la mayor brevedad!</p>
 
     <details class="filters" open>
       <summary>Filtros <span class="count" data-count aria-live="polite"></span></summary>
