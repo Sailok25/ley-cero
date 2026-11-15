@@ -1,22 +1,61 @@
+
 ---
 import { existsSync } from 'node:fs';
 import Base from '../layouts/Base.astro';
+
+// ============================================================
+// 1. CONFIGURACIÓN GENERAL
+// ============================================================
+
+// Ruta base de la web. Necesaria para que las imágenes funcionen
+// tanto en local como cuando se publica la página.
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// Colores disponibles. Los filtros de color se generan solos con los que uses en los productos.
+// Colores disponibles.
+// Si añades un color nuevo, decláralo aquí antes de utilizarlo.
 const COLORES = {
   blanco: { nombre: 'Blanco', hex: '#ffffff' },
   negro: { nombre: 'Negro', hex: '#000000' },
   rojo: { nombre: 'Rojo', hex: '#E10600' },
 };
 
-// categoria: 'ropa' | 'tazas' | 'accesorios'. precio: número (en €).
-// colores: lista de ids de COLORES, o null si el producto no tiene colores.
-// fotos: una foto por color (con la clave del color) o { unico } si no tiene colores.
-// Los filtros de talla y color se generan solos con lo que pongas aquí.
+// Cuenta de Instagram donde se reciben los pedidos.
+const instagram = 'https://www.instagram.com/direct/t/17844490587325005/';
+
+
+// ============================================================
+// 2. CATÁLOGO DE PRODUCTOS
+// ============================================================
+//
+// Aquí es donde añadirás, eliminarás o modificarás productos.
+//
+// Cada producto tiene estas propiedades:
+//
+// id:        Identificador único. Sin espacios ni caracteres especiales.
+// categoria: 'ropa' o 'accesorios'.
+// nombre:    Nombre que aparecerá en la tienda.
+// precio:    Precio en euros.
+// desc:      Descripción breve.
+// colores:   Lista de colores disponibles o null si no tiene variantes.
+// tallas:    Lista de tallas disponibles o null si no tiene tallas.
+// fotos:     Ruta de cada imagen.
+//
+// IMPORTANTE:
+// - Las rutas empiezan por /img/ y corresponden a la carpeta public.
+// - Si el producto tiene colores, debe tener una foto por cada color.
+// - Si no tiene colores, utiliza la propiedad "unico" en fotos.
+// - No elimines las comas que separan los productos.
+
 const productos = [
+  // ----------------------------------------------------------
+  // ROPA
+  // ----------------------------------------------------------
+
   {
-    id: 'sudadera-1', categoria: 'ropa', nombre: 'Sudadera con logo frontal', precio: 30,
+    id: 'sudadera-1',
+    categoria: 'ropa',
+    nombre: 'Sudadera con logo frontal',
+    precio: 30,
     desc: 'Con el logo de Ley Cero en la parte delantera.',
     colores: ['blanco', 'negro', 'rojo'],
     tallas: ['S', 'M', 'L', 'XL', 'XXL'],
@@ -26,8 +65,12 @@ const productos = [
       rojo: '/img/tienda/ropa/sudaderas/modelo1/sudadera_roja_logoFrontal.png',
     },
   },
+
   {
-    id: 'sudadera-2', categoria: 'ropa', nombre: 'Sudadera con bordes rojos', precio: 45,
+    id: 'sudadera-2',
+    categoria: 'ropa',
+    nombre: 'Sudadera con bordes rojos',
+    precio: 45,
     desc: 'Con el logo de Ley Cero en la parte trasera.',
     colores: ['blanco', 'negro'],
     tallas: ['S', 'M', 'L', 'XL', 'XXL'],
@@ -36,9 +79,12 @@ const productos = [
       negro: '/img/tienda/ropa/sudaderas/modelo2/sudadera_negra_logoTrasero.png',
     },
   },
+
   {
-    // PRECIO Y TALLAS PROVISIONALES: ajústalos a los reales.
-    id: 'body', categoria: 'ropa', nombre: 'Body con logo frontal', precio: 22,
+    id: 'body',
+    categoria: 'ropa',
+    nombre: 'Body con logo frontal',
+    precio: 20,
     desc: 'Con el logo de Ley Cero en la parte delantera.',
     colores: ['blanco', 'negro'],
     tallas: ['S', 'M', 'L'],
@@ -47,287 +93,739 @@ const productos = [
       negro: '/img/tienda/ropa/body/body_negro_logoFrontal.png',
     },
   },
+
   {
-    id: 'taza', categoria: 'tazas', nombre: 'Taza mate con logo', precio: 12,
+    id: 'gorra',
+    categoria: 'ropa',
+    nombre: 'Gorra Ley Cero',
+    precio: 18,
+    desc: 'Gorra ajustable con el logo de Ley Cero.',
+    colores: ['blanco', 'negro'],
+    tallas: null,
+    fotos: {
+      negro: '/img/tienda/ropa/gorra/gorra_negra_logo.png',
+      blanco: '/img/tienda/ropa/gorra/gorra_blanca_logo.png',
+    },
+  },
+
+
+  // ----------------------------------------------------------
+  // ACCESORIOS
+  // ----------------------------------------------------------
+
+  {
+    id: 'pua',
+    categoria: 'accesorios',
+    nombre: 'Púa para guitarra',
+    precio: 3.5,
+    desc: 'Para guitarra y bajos.',
+    colores: ['blanco', 'negro'],
+    tallas: null,
+    fotos: {
+      blanco: '/img/tienda/accesorios/pua/pua_blanca_logo.png',
+      negro: '/img/tienda/accesorios/pua/pua_negra_logo.png',
+    },
+  },
+
+  {
+    id: 'taza',
+    categoria: 'accesorios',
+    nombre: 'Taza mate con logo',
+    precio: 7,
     desc: 'Cerámica con el interior en rojo.',
     colores: ['blanco', 'negro'],
     tallas: null,
     fotos: {
-      blanco: '/img/tienda/tazas/taza_blanca_logo.png',
-      negro: '/img/tienda/tazas/taza_negra_logo.png',
+      blanco: '/img/tienda/accesorios/taza/taza_blanca_logo.png',
+      negro: '/img/tienda/accesorios/taza/taza_negra_logo.png',
     },
   },
+
   {
-    id: 'chapa', categoria: 'accesorios', nombre: 'Chapa para tela', precio: 2,
+    id: 'taza',
+    categoria: 'accesorios',
+    nombre: 'Taza mate con logo',
+    precio: 4,
+    desc: 'Cerámica con el interior en rojo.',
+    colores: ['blanco', 'negro'],
+    tallas: null,
+    fotos: {
+      blanco: '/img/tienda/accesorios/pulsera/plastico/pulsera_plastico_blanca.png',
+      negro: '/img/tienda/accesorios/pulsera/plastico/pulsera_plastico_negro.png',
+    },
+  },
+
+  {
+    id: 'chapa',
+    categoria: 'accesorios',
+    nombre: 'Chapa para tela',
+    precio: 2,
     desc: 'Para tus accesorios de tela.',
     colores: null,
     tallas: null,
-    fotos: { unico: '/img/tienda/accesorios/chapa/chapa_negra_logo.png' },
+    fotos: {
+      unico: '/img/tienda/accesorios/chapa/chapa_negra_logo.png',
+    },
   },
-    {
-    id: 'pua', categoria: 'accesorios', nombre: 'Pua para guitarra', precio: 3.5,
-    desc: 'Para guitarras y bajos.',
-    colores: null,
-    tallas: null,
-    fotos: { unico: '/img/tienda/accesorios/pua/pua_negra_logo.png' },
-  },
+
 ];
 
-// Comprobación al construir la web: si falta un color, una foto o el archivo de la foto,
-// el error dice exactamente cuál, en lugar de dejar una imagen rota en la tienda.
-for (const p of productos) {
-  for (const id of p.colores ?? ['unico']) {
-    if (p.colores && !COLORES[id]) throw new Error(`[tienda] "${p.nombre}": el color "${id}" no existe en COLORES.`);
-    const ruta = p.fotos[id];
-    if (!ruta) throw new Error(`[tienda] "${p.nombre}": falta la foto del color "${id}".`);
-    if (!existsSync(`public${ruta}`)) throw new Error(`[tienda] "${p.nombre}": no existe el archivo public${ruta}`);
+
+// ============================================================
+// 3. VALIDACIÓN DEL CATÁLOGO
+// ============================================================
+//
+// Comprueba automáticamente que todas las imágenes existen
+// y que los colores utilizados están definidos.
+//
+// Si algo está mal, Astro mostrará un error indicando el producto.
+
+for (const producto of productos) {
+  const variantes = producto.colores ?? ['unico'];
+
+  for (const color of variantes) {
+    if (producto.colores && !COLORES[color]) {
+      throw new Error(
+        `[tienda] "${producto.nombre}": el color "${color}" no existe en COLORES.`
+      );
+    }
+
+    const ruta = producto.fotos[color];
+
+    if (!ruta) {
+      throw new Error(
+        `[tienda] "${producto.nombre}": falta la foto del color "${color}".`
+      );
+    }
+
+    if (!existsSync(`public${ruta}`)) {
+      throw new Error(
+        `[tienda] "${producto.nombre}": no existe el archivo public${ruta}`
+      );
+    }
   }
 }
 
-// Orden y nombre de las secciones. Las vacías no se muestran.
+
+// ============================================================
+// 4. DATOS AUTOMÁTICOS PARA LOS FILTROS
+// ============================================================
+
+// Categorías disponibles. Solo aparecen si tienen productos.
 const categorias = [
   { id: 'ropa', nombre: 'Ropa' },
-  { id: 'tazas', nombre: 'Tazas' },
   { id: 'accesorios', nombre: 'Accesorios' },
-].filter((c) => productos.some((p) => p.categoria === c.id));
+].filter((categoria) =>
+  productos.some((producto) => producto.categoria === categoria.id)
+);
 
-// Opciones de los filtros, calculadas a partir de los productos
-const tallasTodas = [...new Set(productos.flatMap((p) => p.tallas ?? []))];
-const coloresTodos = [...new Set(productos.flatMap((p) => p.colores ?? []))].map((id) => COLORES[id]);
-const precios = productos.map((p) => p.precio);
+// Tallas y colores disponibles en todo el catálogo.
+const tallasTodas = [
+  ...new Set(productos.flatMap((producto) => producto.tallas ?? [])),
+];
+
+const coloresTodos = [
+  ...new Set(productos.flatMap((producto) => producto.colores ?? [])),
+].map((id) => COLORES[id]);
+
+// Límites del filtro de precios.
+const precios = productos.map((producto) => producto.precio);
 const pMin = Math.floor(Math.min(...precios));
 const pMax = Math.ceil(Math.max(...precios));
 
-const instagram = 'https://www.instagram.com/direct/t/17844490587325005/';
 ---
-<Base title="Tienda" description="Merch oficial de Ley Cero: ropa, tazas y accesorios.">
+
+<Base
+  title="Tienda"
+  description="Merch oficial de Ley Cero: ropa, tazas y accesorios."
+>
   <section class="section wrap">
+
+    <!-- =====================================================
+         CABECERA DE LA TIENDA
+    ====================================================== -->
+
     <h2 class="rough">Tienda</h2>
-    <p style="margin-top:1.5rem">Personaliza tu pedido con color y talla. Te enviaremos tu pedido con la mayor brevedad!</p>
+
+    <p style="margin-top: 1.5rem">
+      Personaliza tu pedido con color y talla. ¡Te enviaremos tu pedido con la mayor brevedad!
+    </p>
+
+
+    <!-- =====================================================
+         FILTROS
+    ====================================================== -->
 
     <details class="filters" open>
-      <summary>Filtros <span class="count" data-count aria-live="polite"></span></summary>
+      <summary>
+        Filtros
+        <span class="count" data-count aria-live="polite"></span>
+      </summary>
+
       <div class="filters-body">
+
+        <!-- FILTRO POR CATEGORÍA -->
         <div class="fg">
           <span class="fl" id="fl-tipo">Tipo</span>
+
           <div class="chips" role="radiogroup" aria-labelledby="fl-tipo">
-            <button type="button" class="chip" role="radio" aria-checked="true" data-cat="todos">Todos</button>
-            {categorias.map((c) => (
-              <button type="button" class="chip" role="radio" aria-checked="false" data-cat={c.id}>{c.nombre}</button>
+            <button
+              type="button"
+              class="chip"
+              role="radio"
+              aria-checked="true"
+              data-cat="todos"
+            >
+              Todos
+            </button>
+
+            {categorias.map((categoria) => (
+              <button
+                type="button"
+                class="chip"
+                role="radio"
+                aria-checked="false"
+                data-cat={categoria.id}
+              >
+                {categoria.nombre}
+              </button>
             ))}
           </div>
         </div>
 
+
+        <!-- FILTRO POR PRECIO -->
         <div class="fg">
-          <label class="fl" for="f-precio">Precio hasta <output id="f-precio-out">{pMax} €</output></label>
-          <input id="f-precio" type="range" min={pMin} max={pMax} step="1" value={pMax} />
+          <label class="fl" for="f-precio">
+            Precio hasta
+            <output id="f-precio-out">{pMax} €</output>
+          </label>
+
+          <input
+            id="f-precio"
+            type="range"
+            min={pMin}
+            max={pMax}
+            step="1"
+            value={pMax}
+          />
         </div>
 
+
+        <!-- FILTRO POR TALLA -->
         {tallasTodas.length > 0 && (
           <div class="fg">
             <span class="fl" id="fl-talla">Talla</span>
+
             <div class="chips" role="group" aria-labelledby="fl-talla">
-              {tallasTodas.map((t) => (
-                <button type="button" class="chip" aria-pressed="false" data-talla={t}>{t}</button>
+              {tallasTodas.map((talla) => (
+                <button
+                  type="button"
+                  class="chip"
+                  aria-pressed="false"
+                  data-talla={talla}
+                >
+                  {talla}
+                </button>
               ))}
             </div>
           </div>
         )}
 
+
+        <!-- FILTRO POR COLOR -->
         {coloresTodos.length > 0 && (
           <div class="fg">
             <span class="fl" id="fl-color">Color</span>
+
             <div class="chips" role="group" aria-labelledby="fl-color">
-              {coloresTodos.map((c) => (
-                <button type="button" class="swatch" aria-pressed="false" aria-label={c.nombre} title={c.nombre}
-                  data-color={c.nombre} style={`--c:${c.hex}`}></button>
+              {coloresTodos.map((color) => (
+                <button
+                  type="button"
+                  class="swatch"
+                  aria-pressed="false"
+                  aria-label={color.nombre}
+                  title={color.nombre}
+                  data-color={color.nombre}
+                  style={`--c:${color.hex}`}
+                />
               ))}
             </div>
           </div>
         )}
 
-        <button type="button" class="chip clear" data-clear hidden>Limpiar filtros</button>
+
+        <!-- RESTABLECER FILTROS -->
+        <button
+          type="button"
+          class="chip clear"
+          data-clear
+          hidden
+        >
+          Limpiar filtros
+        </button>
+
       </div>
     </details>
 
-    <p class="empty" data-empty hidden>No hay productos con esos filtros. Prueba a quitar alguno.</p>
 
-    {categorias.map((cat) => (
-      <section class="cat-section" data-cat-section={cat.id}>
-        <h2 class="cat rough">{cat.nombre}</h2>
+    <!-- MENSAJE CUANDO NO HAY RESULTADOS -->
+    <p class="empty" data-empty hidden>
+      No hay productos con esos filtros. Prueba a quitar alguno.
+    </p>
+
+
+    <!-- =====================================================
+         CATÁLOGO DE PRODUCTOS
+    ====================================================== -->
+
+    {categorias.map((categoria) => (
+      <section class="cat-section" data-cat-section={categoria.id}>
+
+        <h2 class="cat rough">{categoria.nombre}</h2>
+
         <div class="grid shop">
-          {productos.filter((p) => p.categoria === cat.id).map((p) => {
-            const colores = p.colores
-              ? p.colores.map((id) => ({ id, ...COLORES[id] }))
-              : [{ id: 'unico', nombre: '', hex: '' }];
-            return (
-              <article class="card product" data-cat={p.categoria} data-nombre={p.nombre}
-                data-precio={`${p.precio} €`} data-precio-num={p.precio}
-                data-tallas={(p.tallas ?? []).join('|')} data-colores={(p.colores ?? []).map((id) => COLORES[id].nombre).join('|')}
-                data-talla-req={p.tallas ? '1' : ''}>
-                <div class="art">
-                  {colores.map((c, i) => (
-                    <div class="pv" data-color={c.nombre} hidden={i > 0}>
-                      <img src={`${base}${p.fotos[c.id]}`} alt={`${p.nombre} ${c.nombre}`.trim()} loading="lazy" />
-                    </div>
-                  ))}
-                </div>
 
-                <h3>{p.nombre}</h3>
-                <span class="price">{p.precio} €</span>
-                <p>{p.desc}</p>
+          {productos
+            .filter((producto) => producto.categoria === categoria.id)
+            .map((producto) => {
 
-                {p.colores && (
-                  <fieldset class="opt">
-                    <legend>Color: <b data-color-label>{colores[0].nombre}</b></legend>
-                    <div class="swatches" role="radiogroup" aria-label={`Color de ${p.nombre}`}>
-                      {colores.map((c, i) => (
-                        <button type="button" class="swatch" role="radio" aria-checked={i === 0 ? 'true' : 'false'}
-                          aria-label={c.nombre} data-value={c.nombre} style={`--c:${c.hex}`}></button>
-                      ))}
-                    </div>
-                  </fieldset>
-                )}
+              // Preparamos las variantes de color de cada producto.
+              // Los productos sin colores utilizan una única imagen.
+              const colores = producto.colores
+                ? producto.colores.map((id) => ({
+                    id,
+                    ...COLORES[id],
+                  }))
+                : [{ id: 'unico', nombre: '', hex: '' }];
 
-                {p.tallas && (
-                  <fieldset class="opt">
-                    <legend>Talla</legend>
-                    <div class="sizes" role="radiogroup" aria-label={`Talla de ${p.nombre}`}>
-                      {p.tallas.map((t) => (
-                        <button type="button" class="size" role="radio" aria-checked="false" data-value={t}>{t}</button>
-                      ))}
-                    </div>
-                  </fieldset>
-                )}
+              return (
+                <article
+                  class="card product"
+                  data-cat={producto.categoria}
+                  data-nombre={producto.nombre}
+                  data-precio={`${producto.precio} €`}
+                  data-precio-num={producto.precio}
+                  data-tallas={(producto.tallas ?? []).join('|')}
+                  data-colores={(producto.colores ?? [])
+                    .map((id) => COLORES[id].nombre)
+                    .join('|')}
+                  data-talla-req={producto.tallas ? '1' : ''}
+                >
 
-                <button type="button" class="btn order" data-ig={instagram}>Pedir</button>
-                <p class="hint" role="status" aria-live="polite"></p>
-              </article>
-            );
-          })}
+                  <!-- IMÁGENES DEL PRODUCTO -->
+                  <div class="art">
+                    {colores.map((color, index) => (
+                      <div
+                        class="pv"
+                        data-color={color.nombre}
+                        hidden={index > 0}
+                      >
+                        <img
+                          src={`${base}${producto.fotos[color.id]}`}
+                          alt={`${producto.nombre} ${color.nombre}`.trim()}
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+
+                  <!-- INFORMACIÓN DEL PRODUCTO -->
+                  <h3>{producto.nombre}</h3>
+
+                  <span class="price">
+                    {producto.precio} €
+                  </span>
+
+                  <p>{producto.desc}</p>
+
+
+                  <!-- SELECTOR DE COLOR -->
+                  {producto.colores && (
+                    <fieldset class="opt">
+                      <legend>
+                        Color:
+                        <b data-color-label>{colores[0].nombre}</b>
+                      </legend>
+
+                      <div
+                        class="swatches"
+                        role="radiogroup"
+                        aria-label={`Color de ${producto.nombre}`}
+                      >
+                        {colores.map((color, index) => (
+                          <button
+                            type="button"
+                            class="swatch"
+                            role="radio"
+                            aria-checked={index === 0 ? 'true' : 'false'}
+                            aria-label={color.nombre}
+                            data-value={color.nombre}
+                            style={`--c:${color.hex}`}
+                          />
+                        ))}
+                      </div>
+                    </fieldset>
+                  )}
+
+
+                  <!-- SELECTOR DE TALLA -->
+                  {producto.tallas && (
+                    <fieldset class="opt">
+                      <legend>Talla</legend>
+
+                      <div
+                        class="sizes"
+                        role="radiogroup"
+                        aria-label={`Talla de ${producto.nombre}`}
+                      >
+                        {producto.tallas.map((talla) => (
+                          <button
+                            type="button"
+                            class="size"
+                            role="radio"
+                            aria-checked="false"
+                            data-value={talla}
+                          >
+                            {talla}
+                          </button>
+                        ))}
+                      </div>
+                    </fieldset>
+                  )}
+
+
+                  <!-- BOTÓN DE PEDIDO -->
+                  <button
+                    type="button"
+                    class="btn order"
+                    data-ig={instagram}
+                  >
+                    Pedir
+                  </button>
+
+                  <p
+                    class="hint"
+                    role="status"
+                    aria-live="polite"
+                  ></p>
+
+                </article>
+              );
+            })}
+
         </div>
       </section>
     ))}
+
   </section>
 </Base>
 
+
+<!-- =========================================================
+     5. FUNCIONALIDAD JAVASCRIPT
+========================================================== -->
+
 <script>
-  /* ===== Selectores de cada tarjeta (color, talla, pedir) ===== */
+  // ==========================================================
+  // SELECTORES DE PRODUCTO: COLOR, TALLA Y PEDIDO
+  // ==========================================================
+
   document.querySelectorAll('.product').forEach((card) => {
     const nombre = card.dataset.nombre;
     const precio = card.dataset.precio;
-    const needsSize = card.dataset.tallaReq === '1';
+    const necesitaTalla = card.dataset.tallaReq === '1';
     const hint = card.querySelector('.hint');
-    let color = card.querySelector('.swatch[aria-checked="true"]')?.dataset.value || '';
+
+    let color =
+      card.querySelector('.swatch[aria-checked="true"]')?.dataset.value || '';
+
     let talla = '';
 
-    const select = (group, btn) => {
-      group.querySelectorAll('[role="radio"]').forEach((b) => b.setAttribute('aria-checked', String(b === btn)));
+
+    // Marca un botón como seleccionado dentro de su grupo.
+    const seleccionar = (grupo, boton) => {
+      grupo.querySelectorAll('[role="radio"]').forEach((elemento) => {
+        elemento.setAttribute(
+          'aria-checked',
+          String(elemento === boton)
+        );
+      });
     };
 
-    card.querySelectorAll('.swatch').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        color = btn.dataset.value;
-        select(btn.parentElement, btn);
+
+    // --------------------------------------------------------
+    // CAMBIAR COLOR
+    // --------------------------------------------------------
+
+    card.querySelectorAll('.swatch').forEach((boton) => {
+      boton.addEventListener('click', () => {
+        color = boton.dataset.value;
+
+        seleccionar(boton.parentElement, boton);
+
+        // Actualiza el nombre del color seleccionado.
         card.querySelector('[data-color-label]').textContent = color;
-        card.querySelectorAll('.pv').forEach((pv) => { pv.hidden = pv.dataset.color !== color; });
+
+        // Cambia la imagen mostrada.
+        card.querySelectorAll('.pv').forEach((imagen) => {
+          imagen.hidden = imagen.dataset.color !== color;
+        });
       });
     });
 
-    card.querySelectorAll('.size').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        talla = btn.dataset.value;
-        select(btn.parentElement, btn);
+
+    // --------------------------------------------------------
+    // CAMBIAR TALLA
+    // --------------------------------------------------------
+
+    card.querySelectorAll('.size').forEach((boton) => {
+      boton.addEventListener('click', () => {
+        talla = boton.dataset.value;
+
+        seleccionar(boton.parentElement, boton);
+
         hint.textContent = '';
       });
     });
 
-    card.querySelector('.order').addEventListener('click', (e) => {
-      if (needsSize && !talla) { hint.textContent = 'Elige una talla antes de pedir.'; return; }
-      const partes = [nombre, color, talla && `talla ${talla}`].filter(Boolean).join(' · ');
-      const msg = `Hola Ley Cero, quiero pedir: ${partes} (${precio})`;
-      const copiado = navigator.clipboard?.writeText(msg).then(() => true, () => false);
-      window.open(e.currentTarget.dataset.ig, '_blank', 'noopener');
+
+    // --------------------------------------------------------
+    // REALIZAR PEDIDO
+    // --------------------------------------------------------
+
+    card.querySelector('.order').addEventListener('click', (evento) => {
+
+      // Comprueba que se haya seleccionado una talla si es necesaria.
+      if (necesitaTalla && !talla) {
+        hint.textContent = 'Elige una talla antes de pedir.';
+        return;
+      }
+
+      // Construye el mensaje que se enviará por Instagram.
+      const partes = [
+        nombre,
+        color,
+        talla && `talla ${talla}`,
+      ].filter(Boolean).join(' · ');
+
+      const mensaje = `Hola Ley Cero, quiero pedir: ${partes} (${precio})`;
+
+      // Intenta copiar el pedido al portapapeles.
+      const copiado = navigator.clipboard
+        ?.writeText(mensaje)
+        .then(() => true, () => false);
+
+      // Abre el chat de Instagram.
+      window.open(
+        evento.currentTarget.dataset.ig,
+        '_blank',
+        'noopener'
+      );
+
+      // Informa al usuario del resultado.
       Promise.resolve(copiado).then((ok) => {
         hint.textContent = ok
           ? 'Pedido copiado. Pégalo en el chat de Instagram.'
-          : `Copia este mensaje y pégalo en Instagram: "${msg}"`;
+          : `Copia este mensaje y pégalo en Instagram: "${mensaje}"`;
       });
     });
   });
 
-  /* ===== Filtros ===== */
+
+  // ==========================================================
+  // FILTROS DE LA TIENDA
+  // ==========================================================
+
   const bar = document.querySelector('.filters');
+
   if (bar) {
-    const cards = [...document.querySelectorAll('.product')];
-    const sections = [...document.querySelectorAll('[data-cat-section]')];
+    const tarjetas = [...document.querySelectorAll('.product')];
+
+    const secciones = [
+      ...document.querySelectorAll('[data-cat-section]'),
+    ];
+
     const slider = bar.querySelector('#f-precio');
-    const out = bar.querySelector('#f-precio-out');
-    const count = bar.querySelector('[data-count]');
-    const clear = bar.querySelector('[data-clear]');
-    const empty = document.querySelector('[data-empty]');
-    const maxInicial = Number(slider.max);
+    const output = bar.querySelector('#f-precio-out');
+    const contador = bar.querySelector('[data-count]');
+    const limpiar = bar.querySelector('[data-clear]');
+    const vacio = document.querySelector('[data-empty]');
 
-    const state = { cat: 'todos', max: maxInicial, tallas: new Set(), colores: new Set() };
+    const precioMaximoInicial = Number(slider.max);
 
-    // En móvil, el panel empieza plegado
-    bar.open = window.matchMedia('(min-width: 721px)').matches;
 
-    const apply = () => {
-      let visibles = 0;
-      cards.forEach((c) => {
-        const ts = c.dataset.tallas ? c.dataset.tallas.split('|') : [];
-        const cs = c.dataset.colores ? c.dataset.colores.split('|') : [];
-        const show =
-          (state.cat === 'todos' || c.dataset.cat === state.cat) &&
-          Number(c.dataset.precioNum) <= state.max &&
-          (!state.tallas.size || ts.some((t) => state.tallas.has(t))) &&
-          (!state.colores.size || cs.some((x) => state.colores.has(x)));
-        c.hidden = !show;
-        if (show) visibles++;
-      });
-      sections.forEach((s) => { s.hidden = !s.querySelector('.product:not([hidden])'); });
-      count.textContent = `· ${visibles} producto${visibles === 1 ? '' : 's'}`;
-      empty.hidden = visibles > 0;
-      clear.hidden = state.cat === 'todos' && state.max === maxInicial && !state.tallas.size && !state.colores.size;
+    // Estado actual de los filtros.
+    const estado = {
+      categoria: 'todos',
+      precioMaximo: precioMaximoInicial,
+      tallas: new Set(),
+      colores: new Set(),
     };
 
-    bar.querySelectorAll('[data-cat]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        state.cat = btn.dataset.cat;
-        bar.querySelectorAll('[data-cat]').forEach((b) => b.setAttribute('aria-checked', String(b === btn)));
-        apply();
+
+    // En móvil, el panel de filtros empieza cerrado.
+    bar.open = window.matchMedia('(min-width: 721px)').matches;
+
+
+    // --------------------------------------------------------
+    // APLICAR FILTROS
+    // --------------------------------------------------------
+
+    const aplicarFiltros = () => {
+      let visibles = 0;
+
+      tarjetas.forEach((tarjeta) => {
+        const tallas = tarjeta.dataset.tallas
+          ? tarjeta.dataset.tallas.split('|')
+          : [];
+
+        const colores = tarjeta.dataset.colores
+          ? tarjeta.dataset.colores.split('|')
+          : [];
+
+        const mostrar =
+          // Categoría
+          (estado.categoria === 'todos' ||
+            tarjeta.dataset.cat === estado.categoria) &&
+
+          // Precio
+          Number(tarjeta.dataset.precioNum) <= estado.precioMaximo &&
+
+          // Talla
+          (!estado.tallas.size ||
+            tallas.some((talla) => estado.tallas.has(talla))) &&
+
+          // Color
+          (!estado.colores.size ||
+            colores.some((color) => estado.colores.has(color)));
+
+        tarjeta.hidden = !mostrar;
+
+        if (mostrar) visibles++;
+      });
+
+
+      // Oculta las categorías que no tengan productos visibles.
+      secciones.forEach((seccion) => {
+        seccion.hidden = !seccion.querySelector(
+          '.product:not([hidden])'
+        );
+      });
+
+
+      // Actualiza el contador.
+      contador.textContent =
+        `· ${visibles} producto${visibles === 1 ? '' : 's'}`;
+
+
+      // Mensaje cuando no hay resultados.
+      vacio.hidden = visibles > 0;
+
+
+      // Muestra u oculta el botón para limpiar filtros.
+      limpiar.hidden =
+        estado.categoria === 'todos' &&
+        estado.precioMaximo === precioMaximoInicial &&
+        !estado.tallas.size &&
+        !estado.colores.size;
+    };
+
+
+    // --------------------------------------------------------
+    // FILTRO POR CATEGORÍA
+    // --------------------------------------------------------
+
+    bar.querySelectorAll('[data-cat]').forEach((boton) => {
+      boton.addEventListener('click', () => {
+        estado.categoria = boton.dataset.cat;
+
+        bar.querySelectorAll('[data-cat]').forEach((elemento) => {
+          elemento.setAttribute(
+            'aria-checked',
+            String(elemento === boton)
+          );
+        });
+
+        aplicarFiltros();
       });
     });
 
+
+    // --------------------------------------------------------
+    // FILTRO POR PRECIO
+    // --------------------------------------------------------
+
     slider.addEventListener('input', () => {
-      state.max = Number(slider.value);
-      out.textContent = `${slider.value} €`;
-      apply();
+      estado.precioMaximo = Number(slider.value);
+
+      output.textContent = `${slider.value} €`;
+
+      aplicarFiltros();
     });
 
-    const toggle = (selector, key, attr) => {
-      bar.querySelectorAll(selector).forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const v = btn.dataset[attr];
-          const on = !state[key].has(v);
-          on ? state[key].add(v) : state[key].delete(v);
-          btn.setAttribute('aria-pressed', String(on));
-          apply();
+
+    // --------------------------------------------------------
+    // FILTROS POR TALLA Y COLOR
+    // --------------------------------------------------------
+
+    const configurarFiltroMultiple = (selector, clave, atributo) => {
+      bar.querySelectorAll(selector).forEach((boton) => {
+        boton.addEventListener('click', () => {
+          const valor = boton.dataset[atributo];
+
+          const activo = !estado[clave].has(valor);
+
+          if (activo) {
+            estado[clave].add(valor);
+          } else {
+            estado[clave].delete(valor);
+          }
+
+          boton.setAttribute('aria-pressed', String(activo));
+
+          aplicarFiltros();
         });
       });
     };
-    toggle('[data-talla]', 'tallas', 'talla');
-    toggle('[data-color]', 'colores', 'color');
 
-    clear.addEventListener('click', () => {
-      state.cat = 'todos'; state.max = maxInicial; state.tallas.clear(); state.colores.clear();
-      slider.value = String(maxInicial); out.textContent = `${maxInicial} €`;
-      bar.querySelectorAll('[data-cat]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.cat === 'todos')));
-      bar.querySelectorAll('[aria-pressed]').forEach((b) => b.setAttribute('aria-pressed', 'false'));
-      apply();
+    configurarFiltroMultiple('[data-talla]', 'tallas', 'talla');
+    configurarFiltroMultiple('[data-color]', 'colores', 'color');
+
+
+    // --------------------------------------------------------
+    // LIMPIAR TODOS LOS FILTROS
+    // --------------------------------------------------------
+
+    limpiar.addEventListener('click', () => {
+      estado.categoria = 'todos';
+      estado.precioMaximo = precioMaximoInicial;
+
+      estado.tallas.clear();
+      estado.colores.clear();
+
+      slider.value = String(precioMaximoInicial);
+      output.textContent = `${precioMaximoInicial} €`;
+
+      // Restablece la categoría seleccionada.
+      bar.querySelectorAll('[data-cat]').forEach((boton) => {
+        boton.setAttribute(
+          'aria-checked',
+          String(boton.dataset.cat === 'todos')
+        );
+      });
+
+      // Desmarca tallas y colores.
+      bar.querySelectorAll('[aria-pressed]').forEach((boton) => {
+        boton.setAttribute('aria-pressed', 'false');
+      });
+
+      aplicarFiltros();
     });
 
-    apply();
+
+    // Aplica los filtros al cargar la tienda.
+    aplicarFiltros();
   }
 </script>
